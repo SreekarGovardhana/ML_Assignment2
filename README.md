@@ -2,8 +2,8 @@
 
 Predicting whether a university student will drop out, stay enrolled or graduate, using five ML models and a Streamlit app.
 
-**GitHub repository:** `https://github.com/SreekarGovardhana/ML_Assignment2.git`
-**Live app:** `https://mlassignment2-g5ubhdpuaqptt9b3z35y52.streamlit.app`
+- **GitHub repository:** https://github.com/SreekarGovardhana/ML_Assignment2
+- **Live app:** https://mlassignment2-g5ubhdpuaqptt9b3z35y52.streamlit.app
 
 ## a. Problem statement
 
@@ -25,7 +25,7 @@ Precision, Recall and F1 are **weighted** averages (each class counts in proport
 
 ## c. GitHub Repository Link
 
-`https://github.com/SreekarGovardhana/ML_Assignment2.git`
+https://github.com/SreekarGovardhana/ML_Assignment2
 
 Files in the repository:
 
@@ -33,7 +33,7 @@ Files in the repository:
 - `ML_Assignment2.ipynb`: EDA, preprocessing, tuning, training, evaluation, and saving the models and the test split
 - `requirements.txt`: dependencies, with scikit-learn pinned to the version used for training
 - `test_data.csv`: the 885 held-out rows (36 features + `Target`)
-- `data/data.csv`: the full UCI dataset
+- `data.csv`: the full UCI dataset
 - `model/`: the five saved `.joblib` pipelines, plus `label_encoder.joblib`, `feature_columns.json`, `best_params.json` and `metrics_comparison.csv`
 
 To run it locally: `pip install -r requirements.txt`, run the notebook top to bottom (it recreates `model/` and `test_data.csv`), then `streamlit run app.py`.
@@ -52,17 +52,17 @@ Results on the 885 test rows:
 
 Mean rank across the six metrics (1 = best): Logistic Regression 1.00, SVM 2.00, Decision Tree 3.00, KNN 4.17, Naive Bayes 4.83.
 
-Settings: each model was tuned with `GridSearchCV` (5-fold stratified CV on the training set, scored by macro F1). The grids were: Logistic Regression C ∈ {0.01, 0.1, 1, 10}; Decision Tree max_depth ∈ {4, 6, 8, 10, None}, min_samples_leaf ∈ {1, 5, 10, 20}, criterion ∈ {gini, entropy}; KNN k ∈ {5, 9, 15, 21, 31}, weights ∈ {uniform, distance}; Gaussian Naive Bayes var_smoothing ∈ {1e-9, 1e-7, 1e-5, 1e-3}; SVM C ∈ {0.5, 1, 5}, kernel ∈ {rbf, linear}. The chosen values are saved in `model/best_params.json`.
+Settings: each model was tuned with `GridSearchCV` (5-fold stratified CV on the training set, scored by macro F1). The grids were: Logistic Regression C ∈ {0.01, 0.1, 1, 10}; Decision Tree max_depth ∈ {4, 6, 8, 10, None}, min_samples_leaf ∈ {1, 5, 10, 20}, criterion ∈ {gini, entropy}; KNN k ∈ {5, 9, 15, 21, 31}, weights ∈ {uniform, distance}; Gaussian Naive Bayes var_smoothing ∈ {1e-9, 1e-7, 1e-5, 1e-3}; SVM C ∈ {0.5, 1, 5}, kernel ∈ {rbf, linear}. The values chosen by the search (saved in `model/best_params.json`) were: Logistic Regression C=1; Decision Tree criterion=gini, max_depth=6, min_samples_leaf=5; KNN k=5, uniform weights; Gaussian Naive Bayes var_smoothing=1e-9; SVM linear kernel, C=5.
 
 ### Observations
 
 | ML Model Name | Observation about model performance |
 |---|---|
 | Logistic Regression | The best model on every metric: accuracy 0.7684, AUC 0.8961, precision 0.7500, F1 0.7531 and MCC 0.6150. The gap between training and test accuracy was very small, so it generalises well. Many of the strongest features (curricular units approved and grades in each semester, tuition fees up to date) push the outcome in one direction, which suits a linear model. Its weakest class was **Enrolled**. |
-| Decision Tree | Third overall, with accuracy 0.7299, AUC 0.8669 and MCC 0.5506. It beat KNN and Naive Bayes on every metric but stayed below Logistic Regression and SVM. Training accuracy was clearly higher than test accuracy, which shows some overfitting even after tuning the depth and leaf size. Its AUC is also held back because a tree gives coarse, leaf-level probabilities. |
+| Decision Tree | Third overall, with accuracy 0.7299, AUC 0.8669 and MCC 0.5506. It beat KNN and Naive Bayes on every metric but stayed below Logistic Regression and SVM. Its splits rely heavily on one feature: Curricular units 2nd sem (approved) accounts for about two-thirds of the tree's total feature importance, with Tuition fees up to date a distant second. Training accuracy was clearly higher than test accuracy, which shows some overfitting even after tuning the depth and leaf size. Its AUC is also held back because a tree gives coarse, leaf-level probabilities. |
 | KNN | Fourth overall: accuracy 0.6678, AUC 0.8082, F1 0.6553 and MCC 0.4465. It is ahead of Naive Bayes on accuracy, precision, recall, F1 and MCC, but has the lowest AUC of the five. Scaling helps, but many features are integer codes for categories (course, nationality, parents' occupation), so the distance between two students on those features does not mean much. |
 | Naive Bayes | The weakest model: lowest accuracy (0.6588), precision (0.6334), F1 (0.6417) and MCC (0.4279), although its AUC (0.8118) is slightly above KNN's. Gaussian Naive Bayes assumes the features are independent and normally distributed. Neither holds here: the 1st- and 2nd-semester features are strongly correlated with each other, and many features are discrete codes. |
-| Support Vector Machine | A close second: accuracy 0.7548, AUC 0.8901, F1 0.7464 and MCC 0.5946, all within about 0.02 of Logistic Regression. The extra flexibility of SVM did not help on this dataset, which suggests the classes are separated fairly linearly once the features are scaled. It was also the slowest model to train. |
+| Support Vector Machine | A close second: accuracy 0.7548, AUC 0.8901, F1 0.7464 and MCC 0.5946, all within about 0.02 of Logistic Regression. The grid search picked a **linear** kernel over RBF, which shows the classes are separated fairly linearly once the features are scaled. That explains why it lands so close to Logistic Regression: both draw linear boundaries, and the SVM's margin-based fit gave no extra benefit here. It was also the slowest model to train. |
 | Overall winner | **Logistic Regression.** It has the best Accuracy, AUC, Precision, Recall, F1 and MCC, with SVM a close second. KNN and Naive Bayes were the weakest. For every model, **Enrolled** was the hardest class to predict, because those students sit between dropouts and graduates and it is also the smallest class (18% of the data). |
 
 ## e. Streamlit app
